@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const redis = require('redis');
 
 const app = express();
 const PORT = 4000;
@@ -10,20 +11,25 @@ app.use(express.json());
 const API_TURMA = process.env.API_TURMA || 'http://api_turma:3000';
 const API_PRESENCA = process.env.API_PRESENCA || 'http://api_presenca:5000';
 
+// Conexão com Redis
+const redisClient = redis.createClient({ url: 'redis://redis:6379' });
+
+redisClient.connect().catch(console.error);
+
 // POST /chamada
 app.post('/chamada', async (req, res) => {
   const { turmaID, data } = req.body;
 
   try {
-    // Buscar alunos da turma
     const alunosResponse = await axios.get(`${API_TURMA}/turmas/${turmaID}/alunos`);
     const alunos = alunosResponse.data;
 
-    // Criar presenças para cada aluno
     const resultados = await Promise.all(alunos.map(aluno => {
+      // Limpa o cache de presenças do aluno
+      redisClient.del(`presencas:${aluno.id}`);
       return axios.post(`${API_PRESENCA}/presenca`, {
         alunoID: aluno.id,
-        data: data,
+        data,
         presente: true
       });
     }));
@@ -36,18 +42,32 @@ app.post('/chamada', async (req, res) => {
   }
 });
 
-// GET /presencas/aluno/:id
+// GET /presencas/aluno/:id com cache
 app.get('/presencas/aluno/:id', async (req, res) => {
+  const alunoID = req.params.id;
+
   try {
-    const { id } = req.params;
-    const response = await axios.get(`${API_PRESENCA}/presenca/aluno/${id}`);
-    res.json(response.data);
+    const cacheKey = `presencas:${alunoID}`;
+    const cached = await redisClient.get(cacheKey);
+
+    if (cached) {
+      console.log('Dados do cache');
+      return res.json(JSON.parse(cached));
+    }
+
+    const response = await axios.get(`${API_PRESENCA}/presenca/aluno/${alunoID}`);
+    const dados = response.data;
+
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(dados)); // Cache por 60s
+
+    res.json(dados);
+
   } catch (err) {
     res.status(500).json({ error: 'Erro ao buscar presenças do aluno' });
   }
 });
 
-// GET /presencas/turma/:id
+// GET /presencas/turma/:id (sem cache por enquanto)
 app.get('/presencas/turma/:id', async (req, res) => {
   const turmaID = req.params.id;
   try {

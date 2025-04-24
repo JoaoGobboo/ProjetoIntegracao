@@ -1,8 +1,14 @@
 from flask import Flask, request, jsonify
 import mysql.connector
 import os
+import redis
+import json
+import datetime  # Adicionando importação para datetime
 
 app = Flask(__name__)
+
+# Conexão com o Redis
+redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 
 # Conexão com o banco de dados
 def get_db_connection():
@@ -30,6 +36,9 @@ def registrar_presenca():
         cursor.close()
         conn.close()
 
+        # Limpar cache de presenças do aluno
+        redis_client.delete(f"presencas:{aluno_id}")
+
         return jsonify({"message": "Presença registrada com sucesso!"}), 201
 
     except Exception as e:
@@ -38,6 +47,13 @@ def registrar_presenca():
 @app.route('/presenca/aluno/<int:aluno_id>', methods=['GET'])
 def listar_presencas(aluno_id):
     try:
+        cache_key = f"presencas:{aluno_id}"
+        cached_data = redis_client.get(cache_key)
+
+        if cached_data:
+            print('Dados vindos do cache')
+            return jsonify(json.loads(cached_data)), 200
+
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -47,6 +63,15 @@ def listar_presencas(aluno_id):
         cursor.close()
         conn.close()
 
+        # Converter datas para string (ISO 8601)
+        for presenca in presencas:
+            if isinstance(presenca['data'], (datetime.date, datetime.datetime)):
+                presenca['data'] = presenca['data'].isoformat()
+
+        # Armazena no Redis com expiração de 60 segundos
+        redis_client.setex(cache_key, 60, json.dumps(presencas))
+
+        print('Dados vindos do banco')
         return jsonify(presencas), 200
 
     except Exception as e:
