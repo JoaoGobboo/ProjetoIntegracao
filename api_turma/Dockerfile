@@ -1,5 +1,8 @@
 FROM node:18
 
+# Instalar redis-cli
+RUN apt-get update && apt-get install -y redis-tools
+
 # Definir diretório de trabalho
 WORKDIR /app
 
@@ -20,4 +23,4 @@ HEALTHCHECK --interval=5s --timeout=3s --retries=5 \
   CMD redis-cli -h redis ping || exit 1
 
 # Iniciar o servidor após garantir que o Redis está disponível
-CMD node app.js
+CMD ["node", "app.js"]

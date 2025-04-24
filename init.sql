@@ -48,3 +48,7 @@ INSERT INTO alunos (name, turmaID) VALUES ('Mariana Pereira', 3);
 INSERT INTO alunos (name, turmaID) VALUES ('Gabriel Martins', 3);
 INSERT INTO alunos (name, turmaID) VALUES ('Isabela Fernandes', 3);
 INSERT INTO alunos (name, turmaID) VALUES ('Ricardo Silva', 3);
+
+SELECT * FROM alunos;
+SELECT * FROM turmas;
+SELECT * FROM presencas;

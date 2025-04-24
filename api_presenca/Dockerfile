@@ -1,10 +1,13 @@
 FROM python:3.9
 
+# Instalar redis-cli
+RUN apt-get update && apt-get install -y redis-tools
+
 # Definindo diretório de trabalho
 WORKDIR /app
 
 # Copiar o arquivo de dependências
-COPY requirements.txt ./
+COPY requirements.txt ./ 
 
 # Instalar as dependências
 RUN pip install -r requirements.txt
@@ -20,4 +23,4 @@ HEALTHCHECK --interval=5s --timeout=3s --retries=5 \
   CMD redis-cli -h redis ping || exit 1
 
 # Iniciar o servidor após garantir que o Redis está disponível
-CMD python app.py
+CMD ["python", "app.py"]

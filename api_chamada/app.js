@@ -14,19 +14,24 @@ const API_PRESENCA = process.env.API_PRESENCA || 'http://api_presenca:5000';
 // Conexão com Redis
 const redisClient = redis.createClient({ url: 'redis://redis:6379' });
 
-redisClient.connect().catch(console.error);
+redisClient.connect()
+  .then(() => console.log('Conectado ao Redis'))
+  .catch(err => console.error('Erro ao conectar ao Redis:', err));
 
 // POST /chamada
 app.post('/chamada', async (req, res) => {
   const { turmaID, data } = req.body;
 
   try {
+    console.log(`Registrando chamada para turma ${turmaID} na data ${data}`);
     const alunosResponse = await axios.get(`${API_TURMA}/turmas/${turmaID}/alunos`);
     const alunos = alunosResponse.data;
+    console.log(`Alunos obtidos da api_turma: ${alunos.length}`);
 
-    const resultados = await Promise.all(alunos.map(aluno => {
-      // Limpa o cache de presenças do aluno
-      redisClient.del(`presencas:${aluno.id}`);
+    const resultados = await Promise.all(alunos.map(async aluno => {
+      console.log(`Limpando cache para presencas:${aluno.id}`);
+      await redisClient.del(`presencas:${aluno.id}`);
+      console.log(`Registrando presença para aluno ${aluno.id} via api_presenca`);
       return axios.post(`${API_PRESENCA}/presenca`, {
         alunoID: aluno.id,
         data,
@@ -34,10 +39,10 @@ app.post('/chamada', async (req, res) => {
       });
     }));
 
+    console.log(`Chamada registrada para ${resultados.length} alunos`);
     res.status(201).json({ message: 'Chamada registrada', detalhes: resultados.length });
-
   } catch (err) {
-    console.error(err.message);
+    console.error(`Erro ao registrar chamada: ${err.message}`);
     res.status(500).json({ error: 'Erro ao registrar chamada' });
   }
 });
@@ -45,24 +50,28 @@ app.post('/chamada', async (req, res) => {
 // GET /presencas/aluno/:id com cache
 app.get('/presencas/aluno/:id', async (req, res) => {
   const alunoID = req.params.id;
+  const cacheKey = `presencas:${alunoID}`;
 
   try {
-    const cacheKey = `presencas:${alunoID}`;
+    console.log(`Verificando cache para presencas:${alunoID}`);
     const cached = await redisClient.get(cacheKey);
 
     if (cached) {
-      console.log('Dados do cache');
+      console.log('Dados vindos do cache');
       return res.json(JSON.parse(cached));
     }
 
+    console.log('Consultando api_presenca');
     const response = await axios.get(`${API_PRESENCA}/presenca/aluno/${alunoID}`);
     const dados = response.data;
 
-    await redisClient.setEx(cacheKey, 60, JSON.stringify(dados)); // Cache por 60s
+    console.log('Armazenando dados no cache');
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(dados));
 
+    console.log('Dados vindos da api_presenca');
     res.json(dados);
-
   } catch (err) {
+    console.error(`Erro ao buscar presenças do aluno ${alunoID}: ${err.message}`);
     res.status(500).json({ error: 'Erro ao buscar presenças do aluno' });
   }
 });
@@ -71,10 +80,13 @@ app.get('/presencas/aluno/:id', async (req, res) => {
 app.get('/presencas/turma/:id', async (req, res) => {
   const turmaID = req.params.id;
   try {
+    console.log(`Buscando presenças para turma ${turmaID}`);
     const alunosResponse = await axios.get(`${API_TURMA}/turmas/${turmaID}/alunos`);
     const alunos = alunosResponse.data;
+    console.log(`Alunos obtidos da api_turma: ${alunos.length}`);
 
     const presencasPorAluno = await Promise.all(alunos.map(async aluno => {
+      console.log(`Buscando presenças para aluno ${aluno.id} via api_presenca`);
       const presencas = await axios.get(`${API_PRESENCA}/presenca/aluno/${aluno.id}`);
       return {
         aluno: aluno.name,
@@ -82,9 +94,10 @@ app.get('/presencas/turma/:id', async (req, res) => {
       };
     }));
 
+    console.log('Presenças da turma obtidas');
     res.json(presencasPorAluno);
   } catch (err) {
-    console.error(err.message);
+    console.error(`Erro ao buscar presenças da turma ${turmaID}: ${err.message}`);
     res.status(500).json({ error: 'Erro ao buscar presenças da turma' });
   }
 });
