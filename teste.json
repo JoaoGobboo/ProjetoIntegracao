@@ -1,0 +1,88 @@
+{
+    "_type": "export",
+    "__export_format": 4,
+    "__export_date": "2025-04-24T12:00:00.000Z",
+    "__export_source": "insomnia.desktop.app:v2023.5.8",
+    "resources": [
+      {
+        "_id": "wrk_1",
+        "_type": "workspace",
+        "name": "Escola APIs",
+        "scope": "design"
+      },
+      {
+        "_id": "req_turma_get_alunos",
+        "_type": "request",
+        "parentId": "wrk_1",
+        "method": "GET",
+        "url": "http://localhost:3000/turmas/1/alunos",
+        "name": "api_turma: Get Alunos da Turma",
+        "description": "Obtém a lista de alunos da turma 1, com cache no Redis"
+      },
+      {
+        "_id": "req_chamada_post",
+        "_type": "request",
+        "parentId": "wrk_1",
+        "method": "POST",
+        "url": "http://localhost:4000/chamada",
+        "name": "api_chamada: Registrar Chamada",
+        "description": "Registra uma chamada para a turma 1",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mimeType": "application/json",
+          "text": "{\"turmaID\": 1, \"data\": \"2025-04-24\"}"
+        }
+      },
+      {
+        "_id": "req_chamada_get_presencas_aluno",
+        "_type": "request",
+        "parentId": "wrk_1",
+        "method": "GET",
+        "url": "http://localhost:4000/presencas/aluno/1",
+        "name": "api_chamada: Get Presenças de Aluno",
+        "description": "Obtém as presenças do aluno 1, com cache no Redis"
+      },
+      {
+        "_id": "req_chamada_get_presencas_turma",
+        "_type": "request",
+        "parentId": "wrk_1",
+        "method": "GET",
+        "url": "http://localhost:4000/presencas/turma/1",
+        "name": "api_chamada: Get Presenças da Turma",
+        "description": "Obtém as presenças de todos os alunos da turma 1"
+      },
+      {
+        "_id": "req_presenca_post",
+        "_type": "request",
+        "parentId": "wrk_1",
+        "method": "POST",
+        "url": "http://localhost:5000/presenca",
+        "name": "api_presenca: Registrar Presença",
+        "description": "Registra a presença do aluno 1",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mimeType": "application/json",
+          "text": "{\"alunoID\": 1, \"data\": \"2025-04-24\", \"presente\": true}"
+        }
+      },
+      {
+        "_id": "req_presenca_get_aluno",
+        "_type": "request",
+        "parentId": "wrk_1",
+        "method": "GET",
+        "url": "http://localhost:5000/presenca/aluno/1",
+        "name": "api_presenca: Get Presenças de Aluno",
+        "description": "Obtém as presenças do aluno 1, com cache no Redis"
+      }
+    ]
+  }
