@@ -4,7 +4,7 @@ import os
 import redis
 import json
 import datetime
-import logging  # Importando o módulo logging
+import logging
 
 app = Flask(__name__)
 
@@ -56,6 +56,86 @@ def registrar_presenca():
     except Exception as e:
         logger.error(f"Erro ao registrar presença: {str(e)}")
         return jsonify({"error": str(e)}), 400
+
+@app.route('/presenca/aluno/<int:aluno_id>', methods=['POST'])
+def registrar_presenca_por_aluno(aluno_id):
+    try:
+        data = request.json['data']
+        presente = request.json['presente']
+
+        logger.info(f"Registrando presença para aluno {aluno_id}")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute('INSERT INTO presencas (alunoID, data, presente) VALUES (%s, %s, %s)', 
+                       (aluno_id, data, presente))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        logger.info(f"Limpando cache para presencas:{aluno_id}")
+        redis_client.delete(f"presencas:{aluno_id}")
+
+        logger.info("Presença registrada com sucesso")
+        return jsonify({"message": "Presença registrada com sucesso!"}), 201
+    except Exception as e:
+        logger.error(f"Erro ao registrar presença: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/presenca/aluno/<int:aluno_id>', methods=['PUT'])
+def editar_presenca(aluno_id):
+    try:
+        data_original = request.json['data_original']
+        data_nova = request.json.get('data_nova', data_original)
+        presente = request.json.get('presente')
+
+        logger.info(f"Editando presença para aluno {aluno_id} na data {data_original}")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Verificar se o registro existe
+        cursor.execute('SELECT COUNT(*) FROM presencas WHERE alunoID = %s AND data = %s', 
+                       (aluno_id, data_original))
+        if cursor.fetchone()[0] == 0:
+            logger.error(f"Registro de presença não encontrado para aluno {aluno_id} na data {data_original}")
+            return jsonify({"error": "Registro de presença não encontrado"}), 404
+
+        # Montar a query de atualização
+        update_fields = []
+        update_values = []
+        if data_nova != data_original:
+            update_fields.append("data = %s")
+            update_values.append(data_nova)
+        if presente is not None:
+            update_fields.append("presente = %s")
+            update_values.append(presente)
+
+        if not update_fields:
+            logger.info("Nenhum campo para atualizar")
+            return jsonify({"message": "Nenhum campo para atualizar"}), 200
+
+        update_query = f"UPDATE presencas SET {', '.join(update_fields)} WHERE alunoID = %s AND data = %s"
+        update_values.extend([aluno_id, data_original])
+
+        cursor.execute(update_query, update_values)
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        logger.info(f"Limpando cache para presencas:{aluno_id}")
+        redis_client.delete(f"presencas:{aluno_id}")
+
+        logger.info("Presença editada com sucesso")
+        return jsonify({"message": "Presença editada com sucesso!"}), 200
+    except Exception as e:
+        logger.error(f"Erro ao editar presença: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
 
 @app.route('/presenca/aluno/<int:aluno_id>', methods=['GET'])
 def listar_presencas(aluno_id):

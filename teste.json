@@ -1,88 +1,277 @@
 {
-    "_type": "export",
-    "__export_format": 4,
-    "__export_date": "2025-04-24T12:00:00.000Z",
-    "__export_source": "insomnia.desktop.app:v2023.5.8",
-    "resources": [
-      {
-        "_id": "wrk_1",
-        "_type": "workspace",
-        "name": "Escola APIs",
-        "scope": "design"
-      },
-      {
-        "_id": "req_turma_get_alunos",
-        "_type": "request",
-        "parentId": "wrk_1",
-        "method": "GET",
-        "url": "http://localhost:3000/turmas/1/alunos",
-        "name": "api_turma: Get Alunos da Turma",
-        "description": "Obtém a lista de alunos da turma 1, com cache no Redis"
-      },
-      {
-        "_id": "req_chamada_post",
-        "_type": "request",
-        "parentId": "wrk_1",
-        "method": "POST",
-        "url": "http://localhost:4000/chamada",
-        "name": "api_chamada: Registrar Chamada",
-        "description": "Registra uma chamada para a turma 1",
-        "headers": [
-          {
-            "name": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mimeType": "application/json",
-          "text": "{\"turmaID\": 1, \"data\": \"2025-04-24\"}"
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-04-24T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "wrk_1",
+      "_type": "workspace",
+      "name": "Escola APIs",
+      "scope": "design"
+    },
+    {
+      "_id": "fld_presenca",
+      "_type": "request_group",
+      "parentId": "wrk_1",
+      "name": "Presença",
+      "description": "Requisições relacionadas ao registro e consulta de presenças"
+    },
+    {
+      "_id": "req_turma_get_alunos",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "method": "GET",
+      "url": "http://localhost:3000/turmas/1/alunos",
+      "name": "api_turma: Get Alunos da Turma",
+      "description": "Obtém a lista de alunos da turma 1, com cache no Redis"
+    },
+    {
+      "_id": "req_chamada_post",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "method": "POST",
+      "url": "http://localhost:4000/chamada",
+      "name": "api_chamada: Registrar Chamada",
+      "description": "Registra uma chamada para a turma 1",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
         }
-      },
-      {
-        "_id": "req_chamada_get_presencas_aluno",
-        "_type": "request",
-        "parentId": "wrk_1",
-        "method": "GET",
-        "url": "http://localhost:4000/presencas/aluno/1",
-        "name": "api_chamada: Get Presenças de Aluno",
-        "description": "Obtém as presenças do aluno 1, com cache no Redis"
-      },
-      {
-        "_id": "req_chamada_get_presencas_turma",
-        "_type": "request",
-        "parentId": "wrk_1",
-        "method": "GET",
-        "url": "http://localhost:4000/presencas/turma/1",
-        "name": "api_chamada: Get Presenças da Turma",
-        "description": "Obtém as presenças de todos os alunos da turma 1"
-      },
-      {
-        "_id": "req_presenca_post",
-        "_type": "request",
-        "parentId": "wrk_1",
-        "method": "POST",
-        "url": "http://localhost:5000/presenca",
-        "name": "api_presenca: Registrar Presença",
-        "description": "Registra a presença do aluno 1",
-        "headers": [
-          {
-            "name": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mimeType": "application/json",
-          "text": "{\"alunoID\": 1, \"data\": \"2025-04-24\", \"presente\": true}"
-        }
-      },
-      {
-        "_id": "req_presenca_get_aluno",
-        "_type": "request",
-        "parentId": "wrk_1",
-        "method": "GET",
-        "url": "http://localhost:5000/presenca/aluno/1",
-        "name": "api_presenca: Get Presenças de Aluno",
-        "description": "Obtém as presenças do aluno 1, com cache no Redis"
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"turmaID\": 1, \"data\": \"2025-04-24\"}"
       }
-    ]
-  }
+    },
+    {
+      "_id": "req_chamada_get_presencas_aluno",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "method": "GET",
+      "url": "http://localhost:4000/presencas/aluno/1",
+      "name": "api_chamada: Get Presenças de Aluno",
+      "description": "Obtém as presenças do aluno 1, com cache no Redis"
+    },
+    {
+      "_id": "req_chamada_get_presencas_turma",
+      "_type": "request",
+      "parentId": "wrk_1",
+      "method": "GET",
+      "url": "http://localhost:4000/presencas/turma/1",
+      "name": "api_chamada: Get Presenças da Turma",
+      "description": "Obtém as presenças de todos os alunos da turma 1"
+    },
+    {
+      "_id": "req_presenca_post",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "POST",
+      "url": "http://localhost:5000/presenca",
+      "name": "api_presenca: Registrar Presença (Sucesso)",
+      "description": "Registra a presença do aluno 1 como presente em 2025-04-24. Espera status 201.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"alunoID\": 1, \"data\": \"2025-04-24\", \"presente\": true}"
+      }
+    },
+    {
+      "_id": "req_presenca_post_invalid_id",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "POST",
+      "url": "http://localhost:5000/presenca",
+      "name": "api_presenca: Registrar Presença (Aluno Inválido)",
+      "description": "Tenta registrar presença com alunoID inválido (0), esperando erro 400.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"alunoID\": 0, \"data\": \"2025-04-24\", \"presente\": true}"
+      }
+    },
+    {
+      "_id": "req_presenca_post_missing_field",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "POST",
+      "url": "http://localhost:5000/presenca",
+      "name": "api_presenca: Registrar Presença (Falta Campo)",
+      "description": "Tenta registrar presença sem o campo 'presente', esperando erro 400.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"alunoID\": 1, \"data\": \"2025-04-24\"}"
+      }
+    },
+    {
+      "_id": "req_presenca_get_aluno",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "GET",
+      "url": "http://localhost:5000/presenca/aluno/1",
+      "name": "api_presenca: Get Presenças de Aluno",
+      "description": "Obtém as presenças do aluno 1, com cache no Redis"
+    },
+    {
+      "_id": "req_presenca_post_aluno_success",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "POST",
+      "url": "http://localhost:5000/presenca/aluno/1",
+      "name": "api_presenca: Registrar Presença por Aluno (Sucesso)",
+      "description": "Registra a presença do aluno 1 como presente em 2025-04-24. Espera status 201.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"data\": \"2025-04-24\", \"presente\": true}"
+      }
+    },
+    {
+      "_id": "req_presenca_post_aluno_missing_field",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "POST",
+      "url": "http://localhost:5000/presenca/aluno/1",
+      "name": "api_presenca: Registrar Presença por Aluno (Falta Campo)",
+      "description": "Tenta registrar presença sem o campo 'presente', esperando erro 400.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"data\": \"2025-04-24\"}"
+      }
+    },
+    {
+      "_id": "req_presenca_post_aluno_invalid_date",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "POST",
+      "url": "http://localhost:5000/presenca/aluno/1",
+      "name": "api_presenca: Registrar Presença por Aluno (Data Inválida)",
+      "description": "Tenta registrar presença com data em formato inválido, esperando erro 400.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"data\": \"2025/04/24\", \"presente\": true}"
+      }
+    },
+    {
+      "_id": "req_presenca_put_aluno_success",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "PUT",
+      "url": "http://localhost:5000/presenca/aluno/1",
+      "name": "api_presenca: Editar Presença por Aluno (Sucesso)",
+      "description": "Edita a presença do aluno 1 em 2025-04-24, alterando para ausente e nova data. Espera status 200.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"data_original\": \"2025-04-24\", \"data_nova\": \"2025-04-25\", \"presente\": false}"
+      },
+      "tests": [
+        {
+          "name": "Status code is 200",
+          "code": "pm.test(\"Status code is 200\", function () {\n  pm.response.to.have.status(200);\n});"
+        },
+        {
+          "name": "Response has success message",
+          "code": "pm.test(\"Response has success message\", function () {\n  pm.expect(pm.response.json().message).to.equal(\"Presença editada com sucesso!\");\n});"
+        }
+      ]
+    },
+    {
+      "_id": "req_presenca_put_aluno_not_found",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "PUT",
+      "url": "http://localhost:5000/presenca/aluno/1",
+      "name": "api_presenca: Editar Presença por Aluno (Não Encontrado)",
+      "description": "Tenta editar presença inexistente para aluno 1, esperando erro 404.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"data_original\": \"2025-01-01\", \"presente\": false}"
+      },
+      "tests": [
+        {
+          "name": "Status code is 404",
+          "code": "pm.test(\"Status code is 404\", function () {\n  pm.response.to.have.status(404);\n});"
+        },
+        {
+          "name": "Response has error message",
+          "code": "pm.test(\"Response has error message\", function () {\n  pm.expect(pm.response.json()).to.have.property('error').that.is.a('string');\n});"
+        }
+      ]
+    },
+    {
+      "_id": "req_presenca_put_aluno_missing_field",
+      "_type": "request",
+      "parentId": "fld_presenca",
+      "method": "PUT",
+      "url": "http://localhost:5000/presenca/aluno/1",
+      "name": "api_presenca: Editar Presença por Aluno (Falta Campo)",
+      "description": "Tenta editar presença sem o campo 'data_original', esperando erro 400.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"presente\": false}"
+      },
+      "tests": [
+        {
+          "name": "Status code is 400",
+          "code": "pm.test(\"Status code is 400\", function () {\n  pm.response.to.have.status(400);\n});"
+        },
+        {
+          "name": "Response has error message",
+          "code": "pm.test(\"Response has error message\", function () {\n  pm.expect(pm.response.json()).to.have.property('error').that.is.a('string');\n});"
+        }
+      ]
+    }
+  ]
+}
